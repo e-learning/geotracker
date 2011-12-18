@@ -1,4 +1,4 @@
-package ru.leti.elerning.geotracker.util;
+package ru.eltech.elerning.geotracker.util;
 
 import java.io.*;
 import java.net.URL;

@@ -1,4 +1,4 @@
-package ru.leti.elerning.geotracker;
+package ru.eltech.elerning.geotracker;
 
 /**
  * Author: Kirill Korgov (korgov@yandex-team.ru)
