@@ -1,9 +1,6 @@
 package ru.eltech.elerning.geotracker.util;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Author: Kirill Korgov (korgov@yandex-team.ru)
@@ -24,5 +21,23 @@ public class CollectionUtils {
 
     public static <T> List<T> list(final T... items){
         return Arrays.asList(items);
+    }
+
+    public static <T> List<T> emptyIfNull(final List<T> list){
+        return list == null ? Collections.<T>emptyList(): list;
+    }
+
+    public static <T> Set<T> emptyIfNull(final Set<T> set){
+        return set == null ? Collections.<T>emptySet(): set;
+    }
+
+    public static <K, V> Map<K, V> emptyIfNull(final Map<K, V> map){
+        return map == null ? Collections.<K, V>emptyMap(): map;
+    }
+
+    public static <T> void addIfNotNull(final Collection<T> collection, final T item){
+        if(item != null){
+            collection.add(item);
+        }
     }
 }
