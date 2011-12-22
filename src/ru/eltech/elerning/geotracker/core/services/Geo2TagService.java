@@ -1,8 +1,9 @@
 package ru.eltech.elerning.geotracker.core.services;
 
+import org.json.JSONObject;
 import ru.eltech.elerning.geotracker.core.Geo2TagConstants;
 import ru.eltech.elerning.geotracker.core.model.Channel;
-import ru.eltech.elerning.geotracker.core.model.LoginResult;
+import ru.eltech.elerning.geotracker.core.model.LoginResult;import ru.eltech.elerning.geotracker.core.model.RssResult;
 
 import java.util.List;
 
@@ -25,6 +26,10 @@ public class Geo2TagService extends BaseGeo2TagService{
 
     public static List<Channel> loadSubscribedChannelsAsList(final String authToken) {
         return Geo2TagChannelHelper.wrapChannels(loadSubscribedChannels(authToken).optJSONArray(Geo2TagConstants.Params.CHANNELS));
+    }
+
+    public static RssResult wrapedRssFeed(final String authToken, final double lat, final double lon, final double radius) {
+        return new RssResult(rssFeed(authToken, lat, lon, radius));
     }
 
 }

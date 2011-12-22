@@ -32,10 +32,12 @@ public class LoginWindow {
                     case ERROR:
                         loginStatusBarLabel.setForeground(Color.RED);
                         loginStatusBarLabel.setText(loginResult.getMessage());
+                        loginWindow.pack();
                         break;
                     case OK:
                         loginStatusBarLabel.setForeground(Color.BLACK);
                         loginStatusBarLabel.setText("");
+                        loginWindow.pack();
                         final JFrame mainWindow = new JFrame("Geo Tracker. Hello, " + login);
                         mainWindow.setContentPane(new MainWindow(loginResult.getAuthToken(), login).getMainPanel());
                         mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -60,6 +62,7 @@ public class LoginWindow {
                         loginStatusBarLabel.setForeground(new Color(0, 100, 0)); //dark green
                 }
                 loginStatusBarLabel.setText(addResult.getMessage());
+                loginWindow.pack();
             }
         });
     }

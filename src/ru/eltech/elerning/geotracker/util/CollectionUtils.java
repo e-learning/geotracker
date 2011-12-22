@@ -40,4 +40,10 @@ public class CollectionUtils {
             collection.add(item);
         }
     }
+
+    public static <K, V extends List> void addIfNotNull(final Map<K, V> map, final K key, final V valueList){
+        if(valueList != null && !valueList.isEmpty()){
+            map.put(key, valueList);
+        }
+    }
 }

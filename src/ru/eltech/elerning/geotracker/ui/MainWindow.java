@@ -3,7 +3,8 @@ package ru.eltech.elerning.geotracker.ui;
 import org.json.JSONObject;
 import ru.eltech.elerning.geotracker.core.Geo2TagConstants;
 import ru.eltech.elerning.geotracker.core.model.Channel;
-import ru.eltech.elerning.geotracker.core.services.Geo2TagChannelHelper;
+import ru.eltech.elerning.geotracker.core.model.RssResult;
+import ru.eltech.elerning.geotracker.core.model.RssRow;
 import ru.eltech.elerning.geotracker.core.services.Geo2TagService;
 import ru.eltech.elerning.geotracker.util.StringUtils;
 
@@ -11,8 +12,10 @@ import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Author: Kirill Korgov (korgov@yandex-team.ru)
@@ -58,6 +61,7 @@ public class MainWindow {
     private JTextField applyMarkLonTextField;
     private JButton applyMarkButton;
     private JLabel applyMarkStatusBar;
+    private JTextField rssFeedUserTextField;
 
     public MainWindow(final String authToken, final String login) {
         this.authToken = authToken;
@@ -94,6 +98,7 @@ public class MainWindow {
 
         showChannels();
         showSubscribedChannels();
+        rssFeedUserTextField.setText(login);
         applyMarkButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 applyMark();
@@ -106,36 +111,61 @@ public class MainWindow {
             final double lat = Double.parseDouble(rssLatTextField.getText());
             final double lon = Double.parseDouble(rssLonTextField.getText());
             final double radius = Double.parseDouble(rssRadiusTextField.getText());
-            rssChannels = Geo2TagChannelHelper.wrapChannels(
-                    Geo2TagService.rssFeed(authToken, lat, lon, radius).optJSONArray(Geo2TagConstants.Params.CHANNELS)
-            );
+            final String user = rssFeedUserTextField.getText();
+            final RssResult rssResult = Geo2TagService.wrapedRssFeed(authToken, lat, lon, radius);
+            final Map<String,List<JSONObject>> channelToTags = rssResult.getChannelToTags();
+            final List<RssRow> rssResultAsRows = filterByUser(extractRssRows(channelToTags), user);
             rssTable.setModel(new AbstractTableModel() {
                 public int getRowCount() {
-                    return rssChannels.size();
+                    return rssResultAsRows.size();
                 }
 
                 public int getColumnCount() {
-                    return 2;
+                    return RssRow.getColsCount();
                 }
 
                 @Override
                 public String getColumnName(final int column) {
                     switch (column) {
                         case 0:
-                            return "Name";
+                            return "Channel";
                         case 1:
-                            return "Description";
+                            return "date";
+                        case 2:
+                            return "title";
+                        case 3:
+                            return "description";
+                        case 4:
+                            return "link";
+                        case 5:
+                            return "lon";
+                        case 6:
+                            return "lat";
+                        case 7:
+                            return "user";
                     }
                     return null;
                 }
 
                 public Object getValueAt(final int rowIndex, final int columnIndex) {
-                    final Channel channel = rssChannels.get(rowIndex);
+                    final RssRow row = rssResultAsRows.get(rowIndex);
                     switch (columnIndex) {
                         case 0:
-                            return channel.getName();
+                            return row.getChannelName();
                         case 1:
-                            return channel.getDescription();
+                            return row.getPubDate();
+                        case 2:
+                            return row.getTitle();
+                        case 3:
+                            return row.getDescr();
+                        case 4:
+                            return row.getLink();
+                        case 5:
+                            return row.getLon();
+                        case 6:
+                            return row.getLat();
+                        case 7:
+                            return row.getUser();
                     }
                     return null;
                 }
@@ -146,6 +176,39 @@ public class MainWindow {
             System.out.println("Error: " + e);
             e.printStackTrace();
         }
+    }
+
+    private List<RssRow> filterByUser(final List<RssRow> rssRows, final String user) {
+        if(StringUtils.isEmpty(user)){
+            return rssRows;
+        }
+        final List<RssRow> out = new ArrayList<RssRow>();
+        for(final RssRow row : rssRows){
+            if(user.equals(row.getUser())){
+                out.add(row);
+            }
+        }
+        return out;
+    }
+
+    private List<RssRow> extractRssRows(final Map<String, List<JSONObject>> channelToTags) {
+        final List<RssRow> out = new ArrayList<RssRow>();
+        for(final Map.Entry<String, List<JSONObject>> entry : channelToTags.entrySet()){
+            for(final JSONObject tag : entry.getValue()){
+                out.add(new RssRow(
+                        entry.getKey(),
+                        tag.optString("pubDate"),
+                        tag.optString("title"),
+                        tag.optString("description"),
+                        tag.optString("link"),
+                        tag.optString("latitude"),
+                        tag.optString("longitude"),
+                        tag.optString("user")
+                ));
+            }
+
+        }
+        return out;
     }
 
     public JPanel getMainPanel() {
