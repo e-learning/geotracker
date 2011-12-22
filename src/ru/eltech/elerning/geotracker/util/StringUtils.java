@@ -16,4 +16,8 @@ public class StringUtils {
     public static String nullIfEmpty(final String str){
         return str == null ? null : str.isEmpty() ? null : str;
     }
+
+    public boolean isEmpty(final String str){
+        return str == null || str.trim().isEmpty();
+    }
 }
