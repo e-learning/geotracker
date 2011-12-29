@@ -23,6 +23,9 @@ public class LoginWindow {
     private static JFrame loginWindow;
 
     public LoginWindow() {
+        loginTextField.setText("korgov");
+        passwordField.setText("korgov");
+
         logInButton.addActionListener(new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 final String login = loginTextField.getText();

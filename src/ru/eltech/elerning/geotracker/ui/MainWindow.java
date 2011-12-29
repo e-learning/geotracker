@@ -1,5 +1,8 @@
 package ru.eltech.elerning.geotracker.ui;
 
+import com.teamdev.jxbrowser.Browser;
+import com.teamdev.jxbrowser.BrowserFactory;
+import com.teamdev.jxbrowser.BrowserType;
 import org.json.JSONObject;
 import ru.eltech.elerning.geotracker.core.Geo2TagConstants;
 import ru.eltech.elerning.geotracker.core.model.Channel;
@@ -10,6 +13,7 @@ import ru.eltech.elerning.geotracker.util.StringUtils;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -62,6 +66,8 @@ public class MainWindow {
     private JButton applyMarkButton;
     private JLabel applyMarkStatusBar;
     private JTextField rssFeedUserTextField;
+    private JPanel browserPanel;
+    private final Browser browser;
 
     public MainWindow(final String authToken, final String login) {
         this.authToken = authToken;
@@ -96,6 +102,9 @@ public class MainWindow {
             }
         });
 
+        browser = BrowserFactory.createBrowser(BrowserType.Mozilla);
+        browserPanel.setLayout(new BorderLayout(1, 1));
+        browserPanel.add(browser.getComponent(), BorderLayout.CENTER);
         showChannels();
         showSubscribedChannels();
         rssFeedUserTextField.setText(login);
@@ -115,6 +124,7 @@ public class MainWindow {
             final RssResult rssResult = Geo2TagService.wrapedRssFeed(authToken, lat, lon, radius);
             final Map<String,List<JSONObject>> channelToTags = rssResult.getChannelToTags();
             final List<RssRow> rssResultAsRows = filterByUser(extractRssRows(channelToTags), user);
+            MapSupport.reDrawTags(browser, rssResultAsRows);
             rssTable.setModel(new AbstractTableModel() {
                 public int getRowCount() {
                     return rssResultAsRows.size();
